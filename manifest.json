@@ -1,0 +1,17 @@
+{
+  "name": "Joguinhos",
+  "short_name": "Joguinhos",
+  "description": "Coleção de joguinhos pra jogar offline: Truco do Boteco e mais por vir.",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a100a",
+  "theme_color": "#2c1a10",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

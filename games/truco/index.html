@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Truco do Boteco</title>
+<link rel="icon" href="../../icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../../icons/icon.svg">
+<link rel="manifest" href="../../manifest.json">
+<meta name="theme-color" content="#2c1a10">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Truco">
+<link rel="stylesheet" href="../../fonts/fonts.css">
+<style>
+  :root{
+    color-scheme: dark;
+    --wood-dark:#2c1a10;
+    --wood-mid:#4a2d18;
+    --wood-light:#6b4226;
+    --felt:#0f3d2e;
+    --felt-light:#175c46;
+    --brass:#cf9d43;
+    --brass-bright:#f0c777;
+    --cream:#f6ecd6;
+    --cream-dim:#e5d7b8;
+    --amber:#ff8c42;
+    --amber-glow:#ffb066;
+    --suit-red:#a8352a;
+    --suit-black:#211a14;
+    --ink:#1c130c;
+    --bg:#1a100a;
+    --text-on-dark:#f6ecd6;
+    --team-b:#8fa8bd;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg);
+    color:var(--text-on-dark);
+    font-family:'Nunito',system-ui,sans-serif;
+    overflow-x:hidden;
+    overscroll-behavior:none;
+    -webkit-user-select:none; user-select:none;
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,180,100,0.06), transparent 60%),
+      var(--bg);
+  }
+
+  #app{
+    width:100%;
+    max-width:520px;
+    min-height:100vh;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    background:
+      repeating-linear-gradient(100deg, rgba(0,0,0,0.10) 0px, rgba(0,0,0,0.10) 2px, transparent 2px, transparent 26px),
+      repeating-linear-gradient(95deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 14px),
+      linear-gradient(160deg, var(--wood-mid), var(--wood-dark) 70%);
+    box-shadow: 0 0 60px rgba(0,0,0,0.6);
+  }
+
+  /* ---------- Header / sign ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 12px 4px;
+    gap:8px;
+    z-index:5;
+  }
+
+  .icon-btn{
+    width:38px; height:38px; border-radius:50%;
+    border:1px solid rgba(207,157,67,0.5);
+    background:rgba(0,0,0,0.25);
+    color:var(--brass-bright);
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px;
+    cursor:pointer;
+    flex:0 0 auto;
+  }
+  .icon-btn:active{ transform:scale(0.92); }
+
+  .sign{
+    font-family:'Bungee Shade', cursive;
+    font-size:clamp(26px, 8vw, 34px);
+    letter-spacing:2px;
+    color:var(--amber);
+    text-shadow:
+      0 0 12px rgba(255,140,66,0.55),
+      0 0 30px rgba(255,140,66,0.25);
+    text-align:center;
+    flex:1;
+    line-height:1;
+  }
+
+  .scorechip{
+    flex:0 0 auto;
+    min-width:52px;
+    background:linear-gradient(180deg,#241a12,#150e09);
+    border:1px solid rgba(207,157,67,0.35);
+    border-radius:10px;
+    padding:5px 8px;
+    text-align:center;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+  }
+  .scorechip .lbl{
+    font-size:9px; letter-spacing:1px; color:var(--cream-dim); opacity:0.8;
+    white-space:nowrap;
+  }
+  .scorechip .val{
+    font-family:'Bungee Shade', cursive;
+    font-size:20px; color:var(--cream);
+    line-height:1.1;
+  }
+  .scorechip .ticks{
+    display:flex; gap:2px; justify-content:center; margin-top:3px; flex-wrap:wrap; max-width:60px;
+  }
+  .scorechip .ticks i{
+    width:4px; height:4px; border-radius:50%;
+    background:rgba(230,215,184,0.25);
+  }
+  .scorechip .ticks i.on{ background:var(--brass-bright); box-shadow:0 0 4px var(--brass-bright); }
+
+  /* ---------- Table / felt ---------- */
+  .table-wrap{
+    flex:1;
+    display:flex; flex-direction:column;
+    padding:6px 10px 10px;
+    perspective:1200px;
+  }
+
+  .felt{
+    flex:1;
+    position:relative;
+    border-radius:22px;
+    background:
+      radial-gradient(ellipse at 50% 40%, var(--felt-light), var(--felt) 70%);
+    border:3px solid var(--brass);
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,0.4),
+      inset 0 0 40px rgba(0,0,0,0.55),
+      inset 0 2px 12px rgba(255,255,255,0.06),
+      0 18px 30px -10px rgba(0,0,0,0.7);
+    transform: rotateX(3deg);
+    transform-style:preserve-3d;
+    display:flex; flex-direction:column;
+    padding:10px 6px;
+    min-height:0;
+    overflow:hidden;
+  }
+
+  .zone{
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .bot-zone{ flex:0 0 auto; padding:4px 0 8px; min-height:100px; }
+  .bot-zone.multi{ min-height:6px; padding:0; }
+  .mid-zone{ flex:1; min-height:120px; }
+  .mid-zone.multi{ min-height:220px; }
+  .player-zone{ flex:0 0 auto; padding:8px 0 4px; min-height:114px; }
+
+  .hand{
+    position:relative;
+    width:100%;
+    height:100%;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .hand .card{ position:absolute; }
+
+  .name-tag{
+    position:absolute;
+    top:2px; left:50%; transform:translateX(-50%);
+    font-size:10px; letter-spacing:1.5px; color:var(--brass-bright);
+    opacity:0.65;
+    text-transform:uppercase;
+  }
+  .player-zone .name-tag{ top:auto; bottom:2px; }
+
+  /* ---------- Multi-seat: avatars around the table (dupla/trio) ---------- */
+  .seats-layer{
+    position:absolute; inset:0;
+    pointer-events:none;
+    z-index:7;
+  }
+  .felt-seat{
+    position:absolute;
+    transform:translate(-50%,0);
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+  }
+  .felt-seat.pos-12{ top:9%;  left:50%; }
+  .felt-seat.pos-10{ top:21%; left:16%; }
+  .felt-seat.pos-2 { top:21%; left:84%; }
+  .felt-seat.pos-9 { top:27%; left:11%; }
+  .felt-seat.pos-3 { top:27%; left:89%; }
+  .felt-seat.pos-8 { top:41%; left:9%;  }
+  .felt-seat.pos-4 { top:41%; left:91%; }
+
+  .avatar{
+    position:relative;
+    width:50px; height:50px;
+    border-radius:50%;
+    border:2.5px solid var(--team-b);
+    box-shadow:0 3px 6px rgba(0,0,0,0.5);
+    transition: box-shadow 0.3s;
+  }
+  .avatar.teamA{ border-color:var(--amber); }
+  .avatar-inner{
+    position:absolute; inset:0;
+    border-radius:50%;
+    overflow:hidden;
+    background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(0,0,0,0.35));
+    display:flex; align-items:flex-end; justify-content:center;
+  }
+  .fig-head{
+    position:absolute; top:16%; left:50%;
+    width:34%; height:34%;
+    border-radius:50%;
+    transform:translateX(-50%);
+    box-shadow: inset 0 -3px 4px rgba(0,0,0,0.3), 0 1px 1px rgba(255,255,255,0.15);
+  }
+  .fig-body{
+    position:absolute; bottom:-10%; left:50%;
+    width:76%; height:48%;
+    border-radius:50% 50% 0 0;
+    transform:translateX(-50%);
+    box-shadow: inset 0 4px 6px rgba(0,0,0,0.25);
+  }
+  .avatar .cnt{
+    position:absolute; bottom:-4px; right:-4px;
+    background:var(--ink); color:var(--cream);
+    font-size:9px; font-weight:800;
+    border-radius:50%; width:16px; height:16px;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--brass);
+    z-index:2;
+  }
+  .felt-seat.active .avatar{
+    box-shadow: 0 0 0 3px var(--amber-glow), 0 0 14px rgba(255,140,66,0.6);
+  }
+  .seat-name{
+    font-size:12px; font-weight:700; letter-spacing:0.2px; color:var(--cream);
+    background:rgba(0,0,0,0.4);
+    padding:2px 8px;
+    border-radius:9px;
+    text-align:center; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+  .seat-bubble{
+    position:absolute; bottom:100%; left:50%;
+    transform:translate(-50%,6px) scale(0.6);
+    margin-bottom:4px;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Nunito',sans-serif;
+    font-weight:800;
+    font-size:11px;
+    letter-spacing:0.3px;
+    padding:5px 9px;
+    border-radius:12px;
+    white-space:nowrap;
+    opacity:0;
+    box-shadow:0 3px 8px rgba(0,0,0,0.4);
+  }
+  .seat-bubble::after{
+    content:'';
+    position:absolute; top:100%; left:50%; transform:translateX(-50%);
+    border:5px solid transparent; border-top-color:var(--cream);
+  }
+  .seat-bubble.show{
+    animation: bubbleIn 2s cubic-bezier(.3,1.5,.4,1) forwards;
+  }
+  @keyframes bubbleIn{
+    0%{ opacity:0; transform:translate(-50%,6px) scale(0.5); }
+    15%{ opacity:1; transform:translate(-50%,0) scale(1); }
+    80%{ opacity:1; transform:translate(-50%,0) scale(1); }
+    100%{ opacity:0; transform:translate(-50%,-4px) scale(0.9); }
+  }
+
+  .you-bubble-anchor{
+    position:absolute; top:-6px; left:50%;
+    width:1px; height:1px;
+  }
+
+  /* vira tucked corner */
+  .vira-slot{
+    position:absolute; top:8px; right:10px;
+    display:flex; flex-direction:column; align-items:center;
+    z-index:4;
+  }
+  .vira-slot .cap{ font-size:8px; letter-spacing:1px; color:var(--cream-dim); opacity:0.75; margin-bottom:2px; }
+  .vira-slot .card{ transform: rotate(8deg); transform-origin:center; }
+
+  .play-area{
+    position:relative;
+    width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .play-slot{
+    position:relative;
+    width:72px; height:100px;
+  }
+  .play-slot.bot-slot{ transform: translateY(-8px); }
+  .play-slot.player-slot{ transform: translateY(8px); }
+  .play-area.multi .play-slot{
+    width:60px; height:84px;
+    transform: scale(0.94);
+  }
+  .play-area.multi .play-slot .mini-label{
+    position:absolute; bottom:-15px; left:50%; transform:translateX(-50%);
+    font-size:9px; color:var(--cream-dim); opacity:0.8; white-space:nowrap;
+  }
+
+  .round-dots{
+    position:absolute; left:8px; top:50%; transform:translateY(-50%);
+    display:flex; flex-direction:column; gap:6px;
+    z-index:3;
+  }
+  .round-dots .dot{
+    width:11px; height:11px; border-radius:50%;
+    border:1.5px solid rgba(230,215,184,0.4);
+    background:rgba(0,0,0,0.25);
+  }
+  .round-dots .dot.A{ background:var(--amber); border-color:var(--amber); box-shadow:0 0 6px var(--amber); }
+  .round-dots .dot.B{ background:var(--suit-black); border-color:var(--cream-dim); }
+  .round-dots .dot.tie{ background:transparent; border-color:var(--cream-dim); }
+  .round-dots .dot.tie::after{ content:'='; font-size:8px; color:var(--cream-dim); display:block; text-align:center; line-height:9px; }
+
+  .stake-badge{
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    background:rgba(0,0,0,0.35);
+    border:1px solid rgba(207,157,67,0.5);
+    border-radius:8px;
+    padding:4px 7px;
+    text-align:center;
+    z-index:3;
+  }
+  .stake-badge .n{ font-family:'Bungee Shade',cursive; color:var(--amber-glow); font-size:16px; line-height:1;}
+  .stake-badge .t{ font-size:7px; letter-spacing:1px; color:var(--cream-dim); }
+
+  /* ---------- Cards ---------- */
+  .card{
+    width:66px; height:94px;
+    border-radius:8px;
+    cursor:default;
+    transform-style:preserve-3d;
+    transition: transform 0.55s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s;
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.5));
+  }
+  .card-inner{
+    position:relative; width:100%; height:100%;
+    transform-style:preserve-3d;
+    transition: transform 0.5s cubic-bezier(.3,.7,.3,1.1);
+  }
+  .card.flipped .card-inner{ transform: rotateY(180deg); }
+
+  .face{
+    position:absolute; inset:0;
+    border-radius:8px;
+    backface-visibility:hidden;
+    display:flex; flex-direction:column; justify-content:space-between;
+    padding:5px 6px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+  }
+  .face.front{
+    background: linear-gradient(155deg,#fdf8ec,var(--cream) 60%);
+    color:var(--ink);
+  }
+  .face.back{
+    transform: rotateY(180deg);
+    background:
+      repeating-linear-gradient(45deg, rgba(207,157,67,0.16) 0 6px, transparent 6px 12px),
+      linear-gradient(160deg,#134231,#0b2c21);
+    border:1.5px solid rgba(207,157,67,0.55);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .face.back::after{
+    content:'♣'; font-size:23px; color:rgba(207,157,67,0.55);
+  }
+
+  .rank-suit{ font-weight:800; line-height:1; font-size:16px; display:flex; flex-direction:column; align-items:center; }
+  .rank-suit .r{ font-size:16px; }
+  .rank-suit .s{ font-size:14px; margin-top:-1px; }
+  .red{ color:var(--suit-red); }
+  .black{ color:var(--suit-black); }
+  .corner.bottom{ align-self:flex-end; transform:rotate(180deg); }
+  .center-suit{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:30px; opacity:0.85; }
+
+  .card.manilha{
+    box-shadow: 0 0 10px 1px var(--amber-glow), 0 0 22px 2px rgba(255,140,66,0.35);
+  }
+  .card.manilha .face.front{ border:1.5px solid var(--brass); }
+  .card.manilha .face.front .center-suit{ color:var(--brass); text-shadow:0 0 8px rgba(207,157,67,0.6); }
+  .card.manilha .face.front::before{
+    content:''; position:absolute; inset:0; border-radius:6px;
+    background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 45%, transparent 60%);
+    background-size:220% 220%;
+    animation: shine 2.6s ease-in-out infinite;
+    pointer-events:none;
+    mix-blend-mode:overlay;
+  }
+  @keyframes shine{
+    0%{ background-position:120% -20%; }
+    45%{ background-position:-20% 120%; }
+    100%{ background-position:-20% 120%; }
+  }
+
+  .card.playable{ cursor:pointer; }
+  .card.playable:active .card-inner{ transform: translateY(2px) scale(0.97); }
+
+  .card.tossed{
+    z-index:6;
+  }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    padding:8px 14px 14px;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    min-height:64px;
+    justify-content:center;
+  }
+  .status-line{
+    font-size:13px; color:var(--cream-dim); text-align:center;
+    min-height:16px;
+    letter-spacing:0.2px;
+  }
+  .btn-row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+
+  .chip-btn{
+    font-family:'Nunito',sans-serif;
+    font-weight:800;
+    font-size:14px;
+    letter-spacing:0.5px;
+    padding:11px 20px;
+    border-radius:30px;
+    border:2px solid var(--brass);
+    background: radial-gradient(circle at 35% 30%, #3a2716, #1c1108 75%);
+    color:var(--cream);
+    box-shadow: 0 4px 0 #0a0603, 0 6px 10px rgba(0,0,0,0.5);
+    cursor:pointer;
+  }
+  .chip-btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #0a0603; }
+  .chip-btn.primary{
+    border-color:var(--amber);
+    background: radial-gradient(circle at 35% 30%, var(--amber), #b85a1f 75%);
+    color:#2a1204;
+    box-shadow: 0 4px 0 #7a3c14, 0 6px 14px rgba(255,140,66,0.35);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ box-shadow: 0 4px 0 #7a3c14, 0 6px 14px rgba(255,140,66,0.35); }
+    50%{ box-shadow: 0 4px 0 #7a3c14, 0 6px 22px rgba(255,140,66,0.7); }
+  }
+  .chip-btn.danger{ border-color:#8a3b30; }
+  .chip-btn.ghost{
+    background:transparent; box-shadow:none; border-color:rgba(207,157,67,0.4); color:var(--cream-dim);
+  }
+
+  /* ---------- Announcement overlay ---------- */
+  .announce{
+    position:absolute; left:50%; top:38%;
+    width:86%;
+    transform:translate(-50%,-50%) scale(0.5);
+    font-family:'Bungee Shade', cursive;
+    font-size:clamp(20px, 7.5vw, 34px);
+    line-height:1.15;
+    color:var(--amber);
+    text-shadow:
+      0 0 18px rgba(255,140,66,0.7),
+      0 4px 0 rgba(0,0,0,0.4);
+    opacity:0;
+    z-index:20;
+    pointer-events:none;
+    text-align:center;
+  }
+  .announce.show{
+    animation: announceIn 1.1s cubic-bezier(.2,1.4,.4,1) forwards;
+  }
+  @keyframes announceIn{
+    0%{ opacity:0; transform:translate(-50%,-50%) scale(0.3) rotate(-8deg); }
+    18%{ opacity:1; transform:translate(-50%,-50%) scale(1.15) rotate(2deg); }
+    30%{ transform:translate(-50%,-50%) scale(1) rotate(0deg); }
+    78%{ opacity:1; transform:translate(-50%,-50%) scale(1) rotate(0deg); }
+    100%{ opacity:0; transform:translate(-50%,-50%) scale(0.9) rotate(0deg); }
+  }
+
+  /* ---------- Overlays (match-over & mode-select) ---------- */
+  .overlay{
+    position:fixed; inset:0; z-index:50;
+    background:rgba(10,6,3,0.86);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity 0.35s;
+  }
+  .overlay.show{ opacity:1; pointer-events:auto; }
+  .overlay-card{
+    background:linear-gradient(160deg,#2c1a10,#150c07);
+    border:2px solid var(--brass);
+    border-radius:18px;
+    padding:28px 26px;
+    text-align:center;
+    max-width:340px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.6);
+  }
+  .overlay-card h2{
+    font-family:'Bungee Shade',cursive;
+    color:var(--amber);
+    font-size:28px;
+    margin:0 0 8px;
+    text-shadow:0 0 16px rgba(255,140,66,0.5);
+  }
+  .overlay-card p{ color:var(--cream-dim); font-size:14px; margin:0 0 18px; }
+
+  .mode-btns{ display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+  .mode-btn{
+    font-family:'Nunito',sans-serif;
+    font-weight:800; font-size:15px; letter-spacing:0.3px;
+    padding:13px 18px;
+    border-radius:14px;
+    border:2px solid var(--brass);
+    background: radial-gradient(circle at 30% 25%, #3a2716, #1c1108 80%);
+    color:var(--cream);
+    cursor:pointer;
+    text-align:left;
+    box-shadow: 0 4px 0 #0a0603, 0 6px 10px rgba(0,0,0,0.5);
+  }
+  .mode-btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #0a0603; }
+  .mode-btn .t{ display:block; font-size:15px; }
+  .mode-btn .d{ display:block; font-size:11px; font-weight:600; color:var(--cream-dim); opacity:0.8; margin-top:2px; letter-spacing:0.2px; }
+
+  .signal-grid{
+    display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;
+    margin-top:6px;
+  }
+  .signal-btn{
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:10px 4px;
+    border-radius:12px;
+    border:1.5px solid rgba(207,157,67,0.4);
+    background: rgba(0,0,0,0.25);
+    color:var(--cream);
+    cursor:pointer;
+    font-family:'Nunito',sans-serif;
+  }
+  .signal-btn:active{ transform:scale(0.94); background:rgba(255,140,66,0.15); }
+  .signal-btn .ic{ font-size:22px; line-height:1; }
+  .signal-btn .lb{ font-size:9px; font-weight:700; letter-spacing:0.2px; text-align:center; }
+
+  canvas#confetti{
+    position:fixed; inset:0; z-index:60; pointer-events:none;
+  }
+
+  @media (max-width:360px){
+    .card{ width:57px; height:81px; }
+    .sign{ font-size:24px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <div class="scorechip" id="botScoreChip">
+      <div class="lbl">BOT</div>
+      <div class="val" id="botScoreVal">0</div>
+      <div class="ticks" id="botTicks"></div>
+    </div>
+    <div class="sign">TRUCO</div>
+    <div class="scorechip" id="playerScoreChip">
+      <div class="lbl">VOCÊ</div>
+      <div class="val" id="playerScoreVal">0</div>
+      <div class="ticks" id="playerTicks"></div>
+    </div>
+  </div>
+  <div class="topbar" style="padding-top:0;">
+    <button class="icon-btn" id="homeBtn" title="Menu">🏠</button>
+    <button class="icon-btn" id="muteBtn" title="Som">🔊</button>
+    <div style="flex:1"></div>
+    <button class="icon-btn" id="newGameBtn" title="Nova partida">↺</button>
+  </div>
+
+  <div class="table-wrap">
+    <div class="felt" id="felt">
+
+      <div class="zone bot-zone" id="botZone"></div>
+      <div class="seats-layer" id="seatsLayer"></div>
+
+      <div class="zone mid-zone" id="midZone">
+        <div class="round-dots" id="roundDots"></div>
+        <div class="play-area" id="playArea"></div>
+        <div class="vira-slot">
+          <span class="cap">vira</span>
+          <div class="card" id="viraCard"></div>
+        </div>
+        <div class="stake-badge" id="stakeBadge">
+          <div class="n" id="stakeVal">1</div>
+          <div class="t">VALE</div>
+        </div>
+      </div>
+
+      <div class="zone player-zone">
+        <div class="you-bubble-anchor" id="youBubbleAnchor"></div>
+        <div class="hand" id="playerHand"></div>
+        <span class="name-tag">Você</span>
+      </div>
+
+      <div class="announce" id="announce"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="status-line" id="statusLine">Distribuindo as cartas…</div>
+    <div class="btn-row" id="btnRow"></div>
+  </div>
+
+</div>
+
+<div class="overlay" id="modeOverlay">
+  <div class="overlay-card">
+    <h2>TRUCO</h2>
+    <p>Escolha como quer jogar</p>
+    <div class="mode-btns">
+      <button class="mode-btn" data-mode="solo"><span class="t">Sozinho</span><span class="d">1 contra 1</span></button>
+      <button class="mode-btn" data-mode="dupla"><span class="t">Dupla</span><span class="d">2 contra 2, com parceiro</span></button>
+      <button class="mode-btn" data-mode="trio"><span class="t">Trio</span><span class="d">3 contra 3, com dois parceiros</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-card">
+    <h2 id="overlayTitle">Você venceu!</h2>
+    <p id="overlaySub">12 x 7</p>
+    <button class="chip-btn primary" id="overlayBtn">Jogar de novo</button>
+  </div>
+</div>
+
+<div class="overlay" id="signalOverlay">
+  <div class="overlay-card">
+    <h2 style="font-size:20px;">Sinalizar</h2>
+    <p>Mostre ao seu parceiro o que você tem</p>
+    <div class="signal-grid" id="signalGrid"></div>
+    <button class="chip-btn ghost" id="signalCancelBtn" style="margin-top:14px;">Cancelar</button>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============ CONSTANTS ============ */
+  const SUITS = ['paus','copas','espadas','ouros'];
+  const SUIT_SYMBOL = { paus:'♣', copas:'♥', espadas:'♠', ouros:'♦' };
+  const SUIT_COLOR = { paus:'black', copas:'red', espadas:'black', ouros:'red' };
+  const RANKS = ['4','5','6','7','Q','J','K','A','2','3'];
+  const MANILHA_SUIT_STRENGTH = { paus:4, copas:3, espadas:2, ouros:1 };
+  const CALL_LABEL = { 3:'TRUCO', 6:'SEIS', 9:'NOVE', 12:'DOZE' };
+  const NEXT_CALL = { 1:3, 3:6, 6:9, 9:12 };
+
+  const MODE_SEATS = {
+    solo: [
+      {id:'you', team:'A', human:true, name:'Você', short:'Você'},
+      {id:'opp1', team:'B', human:false, name:'Bot', short:'Bot'}
+    ],
+    dupla: [
+      {id:'you', team:'A', human:true, name:'Você', short:'Você'},
+      {id:'opp1', team:'B', human:false, name:'Adversário 1', short:'Adv. 1'},
+      {id:'partner1', team:'A', human:false, name:'Parceiro', short:'Parc.'},
+      {id:'opp2', team:'B', human:false, name:'Adversário 2', short:'Adv. 2'}
+    ],
+    trio: [
+      {id:'you', team:'A', human:true, name:'Você', short:'Você'},
+      {id:'opp1', team:'B', human:false, name:'Adversário 1', short:'Adv. 1'},
+      {id:'partner1', team:'A', human:false, name:'Parceiro 1', short:'Parc. 1'},
+      {id:'opp2', team:'B', human:false, name:'Adversário 2', short:'Adv. 2'},
+      {id:'partner2', team:'A', human:false, name:'Parceiro 2', short:'Parc. 2'},
+      {id:'opp3', team:'B', human:false, name:'Adversário 3', short:'Adv. 3'}
+    ]
+  };
+
+  const NICKNAMES = [
+    'Zé Pistola','Cacau','Duda','Nenê','Foguinho','Tota','Bira','Pingo',
+    'Sardinha','Xandão','Bolão','Formiga','Pernambuco','Tucano','Doutor',
+    'Trovão','Pituca','Gaúcho','Netinho','Faísca','Relâmpago','Coió',
+    'Seu Manoel','Dona Preciosa','Tia Zulmira','Maluco Beleza','Sabiá','Curió'
+  ];
+  function shortNameFor(nick){
+    const parts = nick.split(' ');
+    if(parts.length===1) return nick;
+    if(['Seu','Dona','Tia'].includes(parts[0])) return parts[1];
+    return parts[0];
+  }
+  function assignNicknames(seats){
+    const pool = shuffle([...NICKNAMES]);
+    let i = 0;
+    seats.forEach(seat=>{
+      if(seat.human) return;
+      const nick = pool[i++ % pool.length];
+      seat.name = nick;
+      seat.short = shortNameFor(nick);
+    });
+  }
+
+  /* ============ SINAIS DO TRUCO ============ */
+  const SIGNALS = [
+    { id:'zap',      label:'Zap!',        icon:'😉' },
+    { id:'copas',    label:'Copas!',      icon:'🤨' },
+    { id:'espadas',  label:'Espadas!',    icon:'😏' },
+    { id:'ouros',    label:'Ouros!',      icon:'😛' },
+    { id:'tres',     label:'Três!',       icon:'🤷' },
+    { id:'pardetres',label:'Par de 3!',   icon:'🙌' },
+    { id:'cheio',    label:'Cheio!',      icon:'😤' },
+    { id:'cobrir',   label:'Deixa comigo',icon:'💪' },
+    { id:'pedetruco',label:'Pede truco!', icon:'✂️' }
+  ];
+  function signalById(id){ return SIGNALS.find(s=>s.id===id); }
+
+  function signalForHand(hand){
+    const manilhas = hand.filter(c=>c.rank===state.manilhaRank);
+    if(manilhas.length>=2) return signalById('cheio');
+    if(manilhas.length===1){
+      const suitToSignal = { paus:'zap', copas:'copas', espadas:'espadas', ouros:'ouros' };
+      return signalById(suitToSignal[manilhas[0].suit]);
+    }
+    const treses = hand.filter(c=>c.rank==='3');
+    if(treses.length>=2) return signalById('pardetres');
+    if(treses.length===1) return signalById('tres');
+    return null;
+  }
+
+  function maybeShowPartnerSignals(){
+    if(isSolo()) return;
+    const you = seatById('you');
+    state.seats.forEach(seat=>{
+      if(seat.human || seat.team!==you.team) return;
+      const sig = signalForHand(seat.hand);
+      if(sig && Math.random() < 0.65){
+        setTimeout(()=>{
+          if(!state.handLocked) showBubble(seat.id, sig.icon+' '+sig.label);
+        }, 250 + Math.random()*500);
+      }
+    });
+  }
+
+  function sendPlayerSignal(sigId){
+    const sig = signalById(sigId);
+    if(!sig) return;
+    hideSignalOverlay();
+    ensureAudio();
+    sfx.place();
+    showBubble('you', sig.icon+' '+sig.label);
+    if(sig.id==='cobrir'){
+      state.playerWillCover = true;
+    } else if(sig.id==='pedetruco'){
+      state.playerAskedTruco = true;
+    } else {
+      state.playerSignalStrong = true;
+    }
+    setStatus('Você sinalizou: '+sig.label);
+  }
+
+  function showSignalOverlay(){ document.getElementById('signalOverlay').classList.add('show'); }
+  function hideSignalOverlay(){ document.getElementById('signalOverlay').classList.remove('show'); }
+
+  /* ============ AUDIO ============ */
+  let audioCtx = null;
+  let muted = false;
+  try{ muted = localStorage.getItem('truco_muted') === '1'; }catch(e){}
+
+  function ensureAudio(){
+    if(!audioCtx){
+      try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ audioCtx=null; }
+    }
+    if(audioCtx && audioCtx.state === 'suspended'){ audioCtx.resume(); }
+  }
+  function tone(freq, start, dur, type, gainVal){
+    if(muted || !audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type||'sine';
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime+start);
+    gain.gain.setValueAtTime(0, audioCtx.currentTime+start);
+    gain.gain.linearRampToValueAtTime(gainVal||0.12, audioCtx.currentTime+start+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+start+dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(audioCtx.currentTime+start);
+    osc.stop(audioCtx.currentTime+start+dur+0.05);
+  }
+  const sfx = {
+    place(){ tone(320,0,0.09,'triangle',0.10); },
+    flip(){ tone(500,0,0.06,'square',0.05); },
+    call(){ tone(220,0,0.14,'sawtooth',0.10); tone(330,0.12,0.22,'sawtooth',0.10); },
+    accept(){ tone(440,0,0.1,'sine',0.10); tone(660,0.08,0.16,'sine',0.10); },
+    run(){ tone(300,0,0.2,'sine',0.08); tone(180,0.15,0.25,'sine',0.08); },
+    winRound(){ tone(523,0,0.12,'triangle',0.10); tone(659,0.1,0.14,'triangle',0.10); },
+    loseRound(){ tone(300,0,0.16,'triangle',0.08); },
+    winMatch(){ [523,659,784,1046].forEach((f,i)=>tone(f, i*0.12, 0.22,'triangle',0.12)); },
+    loseMatch(){ [400,340,280,220].forEach((f,i)=>tone(f, i*0.13, 0.24,'sine',0.10)); }
+  };
+
+  /* ============ STATE ============ */
+  let state = null;
+  let busy = false; // blocks input while animating
+
+  function buildDeck(){
+    const deck = [];
+    for(const s of SUITS) for(const r of RANKS) deck.push({suit:s, rank:r, id:s+'-'+r});
+    return deck;
+  }
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+  function manilhaRankFromVira(viraRank){
+    const idx = RANKS.indexOf(viraRank);
+    return RANKS[(idx+1) % RANKS.length];
+  }
+  function cardValue(card, manilhaRank){
+    if(card.rank === manilhaRank) return 10 + MANILHA_SUIT_STRENGTH[card.suit];
+    return RANKS.indexOf(card.rank);
+  }
+  function isManilha(card){ return state && card.rank === state.manilhaRank; }
+
+  function isHandOver(results){
+    if(results.length < 2) return false;
+    if(results.length === 2){
+      const [r1,r2] = results;
+      if(r1 === 'tie') return r2 !== 'tie';
+      if(r2 === 'tie') return true;
+      if(r2 === r1) return true;
+      return false;
+    }
+    return true;
+  }
+  function getHandWinner(results, maoTeam){
+    const decisive = results.filter(r=>r!=='tie');
+    if(decisive.length===0) return maoTeam;
+    if(results.length<=2){
+      if(results[0]==='tie') return results[1];
+      return results[0];
+    }
+    const r3 = results[2];
+    if(r3 !== 'tie') return r3;
+    return results[0];
+  }
+
+  function seatById(id){ return state.seats.find(s=>s.id===id); }
+  function otherTeam(team){ return team==='A' ? 'B' : 'A'; }
+  function activeSeat(){ return state.seats[state.order[state.turnPos]]; }
+  function isSolo(){ return state.seats.length === 2; }
+  function oppLabel(cap){
+    if(isSolo()){
+      const opp = state.seats.find(s=>!s.human);
+      return opp.name;
+    }
+    return cap ? 'O outro time' : 'o outro time';
+  }
+
+  function newMatch(mode){
+    mode = mode || (state && state.mode) || 'solo';
+    state = {
+      mode: mode,
+      seats: MODE_SEATS[mode].map(s=>Object.assign({}, s, {hand:[]})),
+      scores: { A:0, B:0 },
+      maoSeatIdx: null,
+      matchOver: false
+    };
+    assignNicknames(state.seats);
+    updateScoreboard();
+    hideOverlay();
+    hideModeOverlay();
+    startHand();
+  }
+
+  function startHand(){
+    busy = true;
+    const n = state.seats.length;
+    const deck = shuffle(buildDeck());
+    state.seats.forEach(seat=>{ seat.hand = [deck.pop(), deck.pop(), deck.pop()]; });
+    const vira = deck.pop();
+    const manilhaRank = manilhaRankFromVira(vira.rank);
+
+    state.maoSeatIdx = (state.maoSeatIdx === null) ? Math.floor(Math.random()*n) : (state.maoSeatIdx+1) % n;
+    const order = [];
+    for(let i=0;i<n;i++) order.push((state.maoSeatIdx+i) % n);
+
+    Object.assign(state, {
+      vira, manilhaRank,
+      order,
+      turnPos: 0,
+      roundLeaderPos: 0,
+      roundNum: 1,
+      roundResults: [],
+      playedThisRound: {},
+      stake: 1,
+      pendingCall: null,
+      callLock: null,
+      handLocked: false,
+      playerWillCover: false,
+      playerAskedTruco: false,
+      playerSignalStrong: false
+    });
+
+    renderAll(true);
+    const leadSeat = activeSeat();
+    setStatus(leadSeat.human ? 'Sua vez de começar a rodada.' : leadSeat.name+' começa a rodada…');
+    setTimeout(()=>{
+      busy = false;
+      renderHands();
+      renderControls();
+      maybeShowPartnerSignals();
+      if(!activeSeat().human) seatAct();
+    }, 900);
+  }
+
+  /* ============ RENDER: cards ============ */
+  function cardFaceHTML(card){
+    const cls = SUIT_COLOR[card.suit];
+    const sym = SUIT_SYMBOL[card.suit];
+    return `
+      <div class="rank-suit corner top ${cls}"><span class="r">${card.rank}</span><span class="s">${sym}</span></div>
+      <div class="center-suit ${cls}">${sym}</div>
+      <div class="rank-suit corner bottom ${cls}"><span class="r">${card.rank}</span><span class="s">${sym}</span></div>
+    `;
+  }
+
+  function makeCardEl(card, faceUp){
+    const wrap = document.createElement('div');
+    wrap.className = 'card';
+    wrap.dataset.id = card.id;
+    if(faceUp && isManilha(card)) wrap.classList.add('manilha');
+    const inner = document.createElement('div');
+    inner.className = 'card-inner';
+    if(!faceUp) wrap.classList.add('flipped');
+    inner.innerHTML = `
+      <div class="face front">${cardFaceHTML(card)}</div>
+      <div class="face back"></div>
+    `;
+    wrap.appendChild(inner);
+    return wrap;
+  }
+
+  function layoutHand(container, cards, faceUp, playable, deal){
+    container.innerHTML = '';
+    const n = cards.length;
+    const angleStep = n<=1?0: Math.min(14, 34/(n-1));
+    const spacing = n<=1?0: Math.min(50, 136/(n-1));
+    const finals = [];
+    cards.forEach((card,i)=>{
+      const el = makeCardEl(card, faceUp);
+      const offset = i - (n-1)/2;
+      const angle = offset*angleStep;
+      const x = offset*spacing;
+      const y = Math.abs(offset)*6;
+      const finalT = `translateX(${x}px) translateY(${y}px) rotate(${angle}deg)`;
+      if(deal){
+        el.style.transform = 'translateX(0px) translateY(-14px) rotate(0deg) scale(0.4)';
+        el.style.opacity = '0';
+        el.style.transition = 'none';
+      } else {
+        el.style.transform = finalT;
+      }
+      if(playable){
+        el.classList.add('playable');
+        el.addEventListener('click', ()=>onPlayerCardClick(card));
+      }
+      container.appendChild(el);
+      finals.push({el, finalT, i});
+    });
+    if(deal){
+      requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{
+          finals.forEach(({el, finalT, i})=>{
+            el.style.transition = `transform 0.6s cubic-bezier(.2,.8,.2,1) ${i*90}ms, opacity 0.3s ease ${i*90}ms`;
+            el.style.transform = finalT;
+            el.style.opacity = '1';
+          });
+        });
+      });
+    }
+  }
+
+  /* ============ RENDER: opponents / seats ============ */
+  const SEAT_POSITIONS = {
+    dupla: { opp1:'pos-9', partner1:'pos-12', opp2:'pos-3' },
+    trio:  { opp1:'pos-8', partner1:'pos-10', opp2:'pos-12', partner2:'pos-2', opp3:'pos-4' }
+  };
+  const AVATAR_COLORS = ['#a8543a','#3d6e5a','#4a5f95','#9a7a3a','#7a4a7a','#3a7a8a'];
+  function avatarColorFor(name){
+    let hash = 0;
+    for(let i=0;i<name.length;i++) hash = (hash*31 + name.charCodeAt(i)) >>> 0;
+    return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+  }
+
+  function renderOpponentsShell(){
+    const zone = document.getElementById('botZone');
+    const layer = document.getElementById('seatsLayer');
+    zone.innerHTML = '';
+    layer.innerHTML = '';
+    zone.classList.toggle('multi', !isSolo());
+    if(isSolo()){
+      const opp = state.seats[1];
+      const nameTag = document.createElement('span');
+      nameTag.className = 'name-tag';
+      nameTag.textContent = opp.name;
+      const hand = document.createElement('div');
+      hand.className = 'hand';
+      hand.id = 'botHand';
+      zone.appendChild(nameTag);
+      zone.appendChild(hand);
+    } else {
+      const positions = SEAT_POSITIONS[state.mode];
+      state.seats.forEach(seat=>{
+        if(seat.human) return;
+        const pos = positions[seat.id];
+        const bodyColor = avatarColorFor(seat.name);
+        const w = document.createElement('div');
+        w.className = 'felt-seat ' + pos;
+        w.id = 'seatWidget-'+seat.id;
+        w.innerHTML =
+          '<div class="seat-bubble" id="bubble-'+seat.id+'"></div>'+
+          '<div class="avatar team'+seat.team+'">'+
+            '<div class="avatar-inner">'+
+              '<div class="fig-head" style="background:#e0b98f"></div>'+
+              '<div class="fig-body" style="background:'+bodyColor+'"></div>'+
+            '</div>'+
+            '<span class="cnt">'+seat.hand.length+'</span>'+
+          '</div>'+
+          '<div class="seat-name">'+seat.name+'</div>';
+        layer.appendChild(w);
+      });
+    }
+  }
+
+  function updateOpponentWidgets(){
+    if(isSolo()) return;
+    state.seats.forEach(seat=>{
+      if(seat.human) return;
+      const w = document.getElementById('seatWidget-'+seat.id);
+      if(!w) return;
+      const cnt = w.querySelector('.cnt');
+      if(cnt) cnt.textContent = seat.hand.length;
+      const isActive = activeSeat().id===seat.id && !busy && !state.pendingCall;
+      w.classList.toggle('active', isActive);
+    });
+  }
+
+  function showBubble(seatId, text){
+    const bubble = seatId==='you'
+      ? (document.getElementById('youBubbleAnchor').querySelector('.seat-bubble') || (function(){
+          const b = document.createElement('div');
+          b.className = 'seat-bubble';
+          document.getElementById('youBubbleAnchor').appendChild(b);
+          return b;
+        })())
+      : document.getElementById('bubble-'+seatId);
+    if(!bubble) return;
+    bubble.textContent = text;
+    bubble.classList.remove('show');
+    void bubble.offsetWidth;
+    bubble.classList.add('show');
+  }
+
+  function renderHands(deal){
+    const you = seatById('you');
+    const humanPlayable = !busy && activeSeat().id==='you' && !state.pendingCall;
+    layoutHand(document.getElementById('playerHand'), you.hand, true, humanPlayable, deal);
+    if(isSolo()){
+      layoutHand(document.getElementById('botHand'), state.seats[1].hand, false, false, deal);
+    } else {
+      updateOpponentWidgets();
+    }
+  }
+
+  /* ============ RENDER: play area ============ */
+  function renderPlayAreaShell(){
+    const area = document.getElementById('playArea');
+    area.innerHTML = '';
+    area.classList.toggle('multi', !isSolo());
+    state.order.forEach(seatIdx=>{
+      const seat = state.seats[seatIdx];
+      const slot = document.createElement('div');
+      slot.className = 'play-slot';
+      slot.id = 'slot-'+seat.id;
+      if(isSolo()){
+        slot.classList.add(seat.human ? 'player-slot' : 'bot-slot');
+      } else {
+        const label = document.createElement('div');
+        label.className = 'mini-label';
+        label.textContent = seat.short;
+        slot.appendChild(label);
+      }
+      area.appendChild(slot);
+    });
+  }
+
+  function clearPlaySlots(){
+    state.order.forEach(seatIdx=>{
+      const seat = state.seats[seatIdx];
+      const slot = document.getElementById('slot-'+seat.id);
+      if(slot){
+        const label = slot.querySelector('.mini-label');
+        slot.innerHTML = '';
+        if(label) slot.appendChild(label);
+      }
+    });
+  }
+
+  function renderVira(){
+    const slot = document.getElementById('viraCard');
+    slot.innerHTML = '';
+    slot.appendChild(makeCardEl(state.vira, true));
+  }
+
+  function renderRoundDots(){
+    const el = document.getElementById('roundDots');
+    el.innerHTML = '';
+    for(let i=0;i<3;i++){
+      const d = document.createElement('div');
+      const r = state.roundResults[i];
+      d.className = 'dot' + (r ? ' '+r : '');
+      el.appendChild(d);
+    }
+  }
+
+  function renderStake(){
+    document.getElementById('stakeVal').textContent = state.stake;
+  }
+
+  function tickRow(n){
+    let html='';
+    for(let i=1;i<=12;i++) html += `<i class="${i<=n?'on':''}"></i>`;
+    return html;
+  }
+  function updateScoreboard(){
+    const solo = isSolo();
+    document.querySelector('#botScoreChip .lbl').textContent = solo ? 'BOT' : 'ADVERSÁRIOS';
+    document.querySelector('#playerScoreChip .lbl').textContent = solo ? 'VOCÊ' : 'SEU TIME';
+    document.getElementById('playerScoreVal').textContent = state.scores.A;
+    document.getElementById('botScoreVal').textContent = state.scores.B;
+    document.getElementById('playerTicks').innerHTML = tickRow(state.scores.A);
+    document.getElementById('botTicks').innerHTML = tickRow(state.scores.B);
+  }
+
+  function renderAll(fresh){
+    document.getElementById('midZone').classList.toggle('multi', !isSolo());
+    renderOpponentsShell();
+    renderPlayAreaShell();
+    renderHands(fresh);
+    renderVira();
+    renderRoundDots();
+    renderStake();
+    updateScoreboard();
+  }
+
+  function setStatus(msg){
+    document.getElementById('statusLine').textContent = msg;
+  }
+
+  function announce(text){
+    const el = document.getElementById('announce');
+    el.textContent = text;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+  }
+
+  /* ============ CONTROLS ============ */
+  function renderControls(){
+    const row = document.getElementById('btnRow');
+    row.innerHTML = '';
+    if(state.matchOver) return;
+    const you = seatById('you');
+
+    if(state.pendingCall && state.pendingCall.respondentTeam === you.team){
+      setStatus(`${oppLabel(true)} pediu ${CALL_LABEL[state.pendingCall.value]}! O que você faz?`);
+      row.appendChild(makeBtn('ACEITAR','primary',()=>respondToCall('accept')));
+      row.appendChild(makeBtn('CORRER','danger',()=>respondToCall('run')));
+      if(state.pendingCall.value < 12){
+        row.appendChild(makeBtn('AUMENTAR','ghost',()=>respondToCall('raise')));
+      }
+      updateOpponentWidgets();
+      return;
+    }
+
+    if(!busy && activeSeat().id==='you' && !state.pendingCall){
+      const someonePlayed = Object.keys(state.playedThisRound).length>0;
+      setStatus(someonePlayed ? 'Sua vez de responder.' : 'Sua vez — escolha uma carta.');
+      if(state.stake < 12 && state.callLock !== you.team){
+        const label = CALL_LABEL[NEXT_CALL[state.stake]];
+        row.appendChild(makeBtn(label,'ghost',()=>playerCall()));
+      }
+      row.appendChild(makeBtn('CORRER','danger',()=>playerConcede()));
+      if(!isSolo()){
+        row.appendChild(makeBtn('🤫 SINAL','ghost',()=>showSignalOverlay()));
+      }
+    }
+    updateOpponentWidgets();
+  }
+
+  function makeBtn(label, kind, onClick){
+    const b = document.createElement('button');
+    b.className = 'chip-btn ' + (kind||'');
+    b.textContent = label;
+    b.addEventListener('click', ()=>{ ensureAudio(); onClick(); });
+    return b;
+  }
+
+  /* ============ CALL FLOW ============ */
+  function playerConcede(){
+    if(busy || state.pendingCall || activeSeat().id!=='you' || state.handLocked) return;
+    const you = seatById('you');
+    sfx.run();
+    announce('CORREU!');
+    if(!isSolo()) showBubble('you', 'CORRO!');
+    const pts = state.stake;
+    setStatus('Você correu. '+oppLabel(true)+' fica com '+pts+' ponto'+(pts>1?'s':'')+'.');
+    endHand(otherTeam(you.team), pts, true);
+  }
+
+  function firstAITeamSeat(team){
+    return state.seats.find(s=>s.team===team && !s.human);
+  }
+
+  function playerCall(){
+    if(busy || state.pendingCall || activeSeat().id!=='you' || state.handLocked) return;
+    const you = seatById('you');
+    if(state.callLock === you.team) return;
+    const value = NEXT_CALL[state.stake];
+    state.pendingCall = { value, callChainInitiatorPos: state.turnPos, callerTeam: you.team, respondentTeam: otherTeam(you.team) };
+    sfx.call();
+    if(isSolo()) announce(CALL_LABEL[value]+'!'); else showBubble('you', CALL_LABEL[value]+'!');
+    setStatus('Você pediu '+CALL_LABEL[value]+'. Aguardando resposta…');
+    renderHands();
+    renderControls();
+    setTimeout(resolvePendingCallForAI, 1100);
+  }
+
+  function seatCalls(seat){
+    const value = NEXT_CALL[state.stake];
+    state.pendingCall = { value, callChainInitiatorPos: state.turnPos, callerTeam: seat.team, respondentTeam: otherTeam(seat.team) };
+    sfx.call();
+    if(isSolo()) announce(CALL_LABEL[value]+'!'); else showBubble(seat.id, CALL_LABEL[value]+'!');
+    setStatus((isSolo()?seat.name:(seat.team===seatById('you').team?'Seu time':'O outro time'))+' pediu '+CALL_LABEL[value]+'!');
+    renderControls();
+    if(state.pendingCall.respondentTeam !== seatById('you').team){
+      setTimeout(resolvePendingCallForAI, 1100);
+    }
+  }
+
+  function handStrength(hand){
+    let s = 0;
+    hand.forEach(c=>{
+      const v = cardValue(c, state.manilhaRank);
+      if(v>=11) s += 3; // manilha
+      else if(v>=6) s += 1; // K,A,2,3 range
+    });
+    return s;
+  }
+
+  function teamHandStrength(team){
+    const members = state.seats.filter(s=>s.team===team);
+    const total = members.reduce((sum,s)=>sum+handStrength(s.hand),0);
+    return total / members.length;
+  }
+
+  function resolvePendingCallForAI(){
+    const pc = state.pendingCall;
+    if(!pc) return;
+    const aiTeam = pc.respondentTeam;
+    if(aiTeam === seatById('you').team) return; // human must respond, don't auto-resolve
+    const strength = teamHandStrength(aiTeam);
+    const roll = Math.random();
+    let action;
+    if(strength>=6 && pc.value<12 && roll<0.35) action='raise';
+    else if(strength>=3) action = roll<0.85 ? 'accept' : 'raise';
+    else if(strength>=1) action = roll<0.55 ? 'accept' : 'run';
+    else action = roll<0.20 ? 'accept' : 'run';
+    if(action==='raise' && pc.value>=12) action='accept';
+    respondToCall(action);
+  }
+
+  function respondToCall(action){
+    const pc = state.pendingCall;
+    if(!pc) return;
+    const you = seatById('you');
+    const responderIsYou = pc.respondentTeam === you.team;
+    const bubbleSeatId = responderIsYou ? 'you' : (firstAITeamSeat(pc.respondentTeam)||{}).id;
+    if(action === 'accept'){
+      sfx.accept();
+      state.stake = pc.value;
+      state.callLock = pc.callerTeam;
+      state.pendingCall = null;
+      state.turnPos = pc.callChainInitiatorPos;
+      setStatus((responderIsYou?'Você aceitou':oppLabel(true)+' aceitou')+'! Valendo '+state.stake+'.');
+      if(!isSolo() && bubbleSeatId) showBubble(bubbleSeatId, 'ACEITO!');
+      renderStake();
+      renderHands();
+      renderControls();
+      if(!activeSeat().human) setTimeout(seatAct, 900);
+    } else if(action === 'run'){
+      sfx.run();
+      const winnerTeam = pc.callerTeam;
+      const pts = state.stake;
+      state.pendingCall = null;
+      setStatus(responderIsYou ? 'Você correu.' : oppLabel(true)+' correu.');
+      announce('CORREU!');
+      if(!isSolo() && bubbleSeatId) showBubble(bubbleSeatId, 'CORRO!');
+      endHand(winnerTeam, pts, true);
+    } else if(action === 'raise'){
+      const newValue = NEXT_CALL[pc.value];
+      const newCallerTeam = pc.respondentTeam;
+      const newRespondentTeam = pc.callerTeam;
+      state.pendingCall = { value:newValue, callChainInitiatorPos: pc.callChainInitiatorPos, callerTeam:newCallerTeam, respondentTeam:newRespondentTeam };
+      sfx.call();
+      if(isSolo()) announce(CALL_LABEL[newValue]+'!'); else if(bubbleSeatId) showBubble(bubbleSeatId, CALL_LABEL[newValue]+'!');
+      setStatus((responderIsYou?'Você aumentou':oppLabel(true)+' aumentou')+' para '+CALL_LABEL[newValue]+'!');
+      renderControls();
+      if(newRespondentTeam !== you.team) setTimeout(resolvePendingCallForAI, 1100);
+    }
+  }
+
+  /* ============ PLAYING CARDS ============ */
+  function onPlayerCardClick(card){
+    if(busy || activeSeat().id!=='you' || state.pendingCall || state.handLocked) return;
+    playCard('you', card);
+  }
+
+  function playCard(seatId, card){
+    if(state.handLocked || !card) return;
+    busy = true;
+    ensureAudio();
+    const seat = seatById(seatId);
+    const idx = seat.hand.findIndex(c=>c.id===card.id);
+    if(idx===-1){ busy=false; renderHands(); renderControls(); return; }
+    seat.hand.splice(idx,1);
+    state.playedThisRound[seatId] = card;
+
+    const slot = document.getElementById('slot-'+seatId);
+    const label = slot ? slot.querySelector('.mini-label') : null;
+    if(slot){ slot.innerHTML=''; if(label) slot.appendChild(label); }
+    const el = makeCardEl(card, seat.human); // non-human starts face-down, flips
+    el.classList.add('tossed');
+    const isYou = !!seat.human;
+    const finalT = `translateY(${isYou?18:-18}px) rotate(${(Math.random()*10-5).toFixed(1)}deg)`;
+    el.style.transform = `translateY(${isYou?54:-54}px) scale(1.18) rotate(0deg)`;
+    el.style.transition = 'none';
+    if(slot) slot.appendChild(el);
+    sfx.place();
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        el.style.transition = 'transform 0.32s cubic-bezier(.25,.5,.3,1.2)';
+        el.style.transform = finalT;
+      });
+    });
+    if(!seat.human){
+      requestAnimationFrame(()=>{
+        setTimeout(()=>{
+          el.classList.remove('flipped');
+          sfx.flip();
+        }, 160);
+      });
+    }
+    renderHands();
+
+    setTimeout(()=>{ afterCardPlayed(); }, 700);
+  }
+
+  function afterCardPlayed(){
+    const playedCount = Object.keys(state.playedThisRound).length;
+    if(playedCount === state.order.length){
+      resolveRound();
+    } else {
+      state.turnPos = (state.turnPos+1) % state.order.length;
+      busy = false;
+      renderHands();
+      renderControls();
+      if(!activeSeat().human) setTimeout(seatAct, 900);
+    }
+  }
+
+  function resolveRound(){
+    let bestVal=-1, bestSeats=[];
+    state.order.forEach(seatIdx=>{
+      const seat = state.seats[seatIdx];
+      const card = state.playedThisRound[seat.id];
+      const v = cardValue(card, state.manilhaRank);
+      if(v>bestVal){ bestVal=v; bestSeats=[seat]; }
+      else if(v===bestVal){ bestSeats.push(seat); }
+    });
+    const teamsAtTop = new Set(bestSeats.map(s=>s.team));
+    const result = teamsAtTop.size===1 ? [...teamsAtTop][0] : 'tie';
+    state.roundResults.push(result);
+    renderRoundDots();
+
+    const youTeam = seatById('you').team;
+    if(result==='tie'){ setStatus('Rodada empatada!'); }
+    else if(result===youTeam){ setStatus('Seu time venceu a rodada!'); sfx.winRound(); }
+    else { setStatus('O outro time venceu a rodada.'); sfx.loseRound(); }
+
+    let nextLeaderPos = null;
+    if(result!=='tie'){
+      const winningSeat = bestSeats.find(s=>s.team===result);
+      nextLeaderPos = state.order.indexOf(state.seats.indexOf(winningSeat));
+    }
+
+    setTimeout(()=>{
+      state.playedThisRound = {};
+      clearPlaySlots();
+      state.playerWillCover = false;
+
+      if(isHandOver(state.roundResults)){
+        const maoTeam = state.seats[state.order[0]].team;
+        const winnerTeam = getHandWinner(state.roundResults, maoTeam);
+        endHand(winnerTeam, state.stake, false);
+        return;
+      }
+      state.roundNum++;
+      if(nextLeaderPos !== null) state.roundLeaderPos = nextLeaderPos;
+      state.turnPos = state.roundLeaderPos;
+      busy = false;
+      renderHands();
+      renderControls();
+      const seat = activeSeat();
+      setStatus((seat.human?'Sua vez':seat.name+' começa')+' — rodada '+state.roundNum+'.');
+      if(!seat.human) setTimeout(seatAct, 900);
+    }, 1100);
+  }
+
+  function endHand(winnerTeam, points, byFold){
+    busy = true;
+    state.pendingCall = null;
+    state.handLocked = true;
+    renderHands();
+    renderControls();
+    state.scores[winnerTeam] += points;
+    updateScoreboard();
+    const youWon = winnerTeam === seatById('you').team;
+    announce(youWon ? 'MÃO SUA!' : 'MÃO ADVERSÁRIA');
+    setStatus((youWon?'Seu time':'O outro time')+' fica com '+points+' ponto'+(points>1?'s':'')+'.');
+
+    if(state.scores[winnerTeam] >= 12){
+      state.matchOver = true;
+      setTimeout(()=>showMatchOver(winnerTeam), 1300);
+      return;
+    }
+    setTimeout(()=>{ startHand(); }, 1700);
+  }
+
+  /* ============ SEAT AI ============ */
+  function seatAct(){
+    if(state.matchOver) return;
+    const seat = activeSeat();
+    busy = true;
+    renderControls();
+    setTimeout(()=>{
+      if(state.handLocked || !seat.hand.length) return;
+      if(maybeSeatConcedes(seat)){
+        sfx.run();
+        announce('CORREU!');
+        if(!isSolo()) showBubble(seat.id, 'CORRO!');
+        const pts = state.stake;
+        const winnerTeam = otherTeam(seat.team);
+        const youWin = winnerTeam === seatById('you').team;
+        const actorLabel = isSolo() ? seat.name : (seat.team===seatById('you').team ? 'Seu time' : 'O outro time');
+        setStatus(actorLabel+' correu. '+(youWin?'Você fica':'O outro time fica')+' com '+pts+' ponto'+(pts>1?'s':'')+'.');
+        endHand(winnerTeam, pts, true);
+        return;
+      }
+      if(maybeSeatCalls(seat)) return;
+      const card = chooseCardForSeat(seat);
+      if(!card) return;
+      playCard(seat.id, card);
+    }, 700 + Math.random()*700);
+  }
+
+  function maybeSeatConcedes(seat){
+    if(state.playedThisRound[seat.id]) return false;
+    if(state.roundNum===1) return false;
+    const teamLostFirst = state.roundResults[0] === otherTeam(seat.team);
+    if(!teamLostFirst) return false;
+    const strength = handStrength(seat.hand);
+    if(strength>0) return false;
+    return Math.random() < 0.35;
+  }
+
+  function maybeSeatCalls(seat){
+    if(state.stake>=12) return false;
+    if(state.playedThisRound[seat.id]) return false;
+    if(state.callLock === seat.team) return false;
+    const isPartner = !isSolo() && seat.team===seatById('you').team;
+    if(isPartner && state.playerAskedTruco){
+      state.playerAskedTruco = false;
+      if(Math.random() < 0.85){
+        seatCalls(seat);
+        setTimeout(()=>{ busy=false; }, 50);
+        return true;
+      }
+      return false;
+    }
+    let strength = handStrength(seat.hand);
+    if(isPartner && state.playerSignalStrong) strength += 2;
+    let chance = 0;
+    if(state.roundNum===1){
+      if(strength>=6) chance=0.55;
+      else if(strength>=3) chance=0.22;
+      else chance=0.06;
+    } else {
+      if(strength>=4) chance=0.4;
+      else chance=0.1;
+    }
+    if(Math.random() < chance){
+      seatCalls(seat);
+      setTimeout(()=>{ busy=false; }, 50);
+      return true;
+    }
+    return false;
+  }
+
+  function chooseCardForSeat(seat){
+    const sorted = [...seat.hand].sort((a,b)=>cardValue(a,state.manilhaRank)-cardValue(b,state.manilhaRank));
+    const isPartner = !isSolo() && seat.team===seatById('you').team;
+    if(isPartner && state.playerWillCover && !state.playedThisRound[seat.id]){
+      state.playerWillCover = false;
+      return sorted[0];
+    }
+    let bestVal=-1, bestTeam=null;
+    state.order.forEach(seatIdx=>{
+      const s = state.seats[seatIdx];
+      if(s.id===seat.id) return;
+      const c = state.playedThisRound[s.id];
+      if(c){
+        const v = cardValue(c, state.manilhaRank);
+        if(v>bestVal){ bestVal=v; bestTeam=s.team; }
+      }
+    });
+    if(bestVal===-1){
+      if(state.roundNum===1){
+        const mid = Math.floor(sorted.length/2);
+        return sorted[Math.max(0, mid-(sorted.length===3?1:0))] || sorted[0];
+      }
+      const teamWonFirst = state.roundResults[0]===seat.team;
+      if(teamWonFirst) return sorted[0];
+      return sorted[sorted.length-1];
+    }
+    if(bestTeam === seat.team){
+      return sorted[0]; // teammate already winning, save good cards
+    }
+    const winners = sorted.filter(c=>cardValue(c,state.manilhaRank)>bestVal);
+    if(winners.length) return winners[0];
+    return sorted[0];
+  }
+
+  /* ============ MATCH OVER / CONFETTI ============ */
+  function showMatchOver(winnerTeam){
+    const youWon = winnerTeam === seatById('you').team;
+    document.getElementById('overlayTitle').textContent = youWon ? 'Você venceu! 🏆' : 'Perdeu essa.';
+    document.getElementById('overlaySub').textContent = state.scores.A+' x '+state.scores.B;
+    document.getElementById('overlay').classList.add('show');
+    if(youWon){ sfx.winMatch(); fireConfetti(); }
+    else { sfx.loseMatch(); }
+  }
+  function hideOverlay(){ document.getElementById('overlay').classList.remove('show'); }
+  function showModeOverlay(){ document.getElementById('modeOverlay').classList.add('show'); }
+  function hideModeOverlay(){ document.getElementById('modeOverlay').classList.remove('show'); }
+
+  function fireConfetti(){
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext && canvas.getContext('2d');
+    if(!ctx) return;
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const colors = ['#cf9d43','#ff8c42','#f6ecd6','#a8352a','#175c46'];
+    const pieces = [];
+    for(let i=0;i<110;i++){
+      pieces.push({
+        x: Math.random()*canvas.width,
+        y: -20-Math.random()*canvas.height*0.5,
+        w: 5+Math.random()*5,
+        h: 8+Math.random()*6,
+        rot: Math.random()*360,
+        vRot: (Math.random()-0.5)*10,
+        vy: 2+Math.random()*3,
+        vx: (Math.random()-0.5)*2,
+        color: colors[Math.floor(Math.random()*colors.length)]
+      });
+    }
+    let frame=0;
+    function step(){
+      frame++;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      let active=false;
+      pieces.forEach(p=>{
+        p.y += p.vy; p.x += p.vx; p.rot += p.vRot;
+        if(p.y < canvas.height+20) active=true;
+        ctx.save();
+        ctx.translate(p.x,p.y);
+        ctx.rotate(p.rot*Math.PI/180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+        ctx.restore();
+      });
+      if(active && frame<420) requestAnimationFrame(step);
+      else ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+    step();
+  }
+
+  /* ============ INIT ============ */
+  document.getElementById('homeBtn').addEventListener('click', ()=>{
+    window.location.href = '../../index.html';
+  });
+  document.getElementById('muteBtn').addEventListener('click', ()=>{
+    muted = !muted;
+    document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
+    try{ localStorage.setItem('truco_muted', muted?'1':'0'); }catch(e){}
+    ensureAudio();
+  });
+  document.getElementById('newGameBtn').addEventListener('click', ()=>{
+    ensureAudio();
+    showModeOverlay();
+  });
+  document.getElementById('overlayBtn').addEventListener('click', ()=>{
+    hideOverlay();
+    newMatch(state.mode);
+  });
+  document.querySelectorAll('#modeOverlay [data-mode]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      ensureAudio();
+      newMatch(btn.getAttribute('data-mode'));
+    });
+  });
+  document.getElementById('muteBtn').textContent = muted ? '🔇' : '🔊';
+
+  (function initSignalGrid(){
+    const grid = document.getElementById('signalGrid');
+    SIGNALS.forEach(function(sig){
+      const b = document.createElement('button');
+      b.className = 'signal-btn';
+      b.innerHTML = '<span class="ic">'+sig.icon+'</span><span class="lb">'+sig.label+'</span>';
+      b.addEventListener('click', function(){ sendPlayerSignal(sig.id); });
+      grid.appendChild(b);
+    });
+  })();
+  document.getElementById('signalCancelBtn').addEventListener('click', hideSignalOverlay);
+
+  document.addEventListener('click', ensureAudio, { once:true });
+  window.addEventListener('resize', ()=>{
+    const c = document.getElementById('confetti');
+    c.width = window.innerWidth; c.height = window.innerHeight;
+  });
+
+  showModeOverlay();
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register('../../sw.js', { scope: '../../' }).catch(console.error);
+    });
+  }
+})();
+</script>
+</body>
+</html>

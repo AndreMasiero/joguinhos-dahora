@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Joguinhos</title>
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon.svg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2c1a10">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Joguinhos">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root{
+    color-scheme: dark;
+    --wood-dark:#2c1a10;
+    --wood-mid:#4a2d18;
+    --felt:#0f3d2e;
+    --felt-light:#175c46;
+    --brass:#cf9d43;
+    --brass-bright:#f0c777;
+    --cream:#f6ecd6;
+    --cream-dim:#e5d7b8;
+    --amber:#ff8c42;
+    --bg:#1a100a;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg);
+    color:var(--cream);
+    font-family:'Nunito',system-ui,sans-serif;
+    overflow-x:hidden;
+    -webkit-user-select:none; user-select:none;
+  }
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255,180,100,0.06), transparent 60%),
+      var(--bg);
+  }
+  #app{
+    width:100%;
+    max-width:520px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding:0 16px 24px;
+  }
+  header{
+    padding:28px 4px 10px;
+    text-align:center;
+  }
+  header h1{
+    font-family:'Bungee Shade', cursive;
+    font-size:clamp(30px, 9vw, 40px);
+    letter-spacing:2px;
+    margin:0;
+    color:var(--amber);
+    text-shadow:0 0 12px rgba(255,140,66,0.5), 0 0 30px rgba(255,140,66,0.25);
+  }
+  header p{
+    margin:8px 0 0;
+    font-size:13px;
+    color:var(--cream-dim);
+    letter-spacing:0.3px;
+  }
+  .grid{
+    display:flex; flex-direction:column; gap:14px;
+    margin-top:10px;
+  }
+  .game-card{
+    display:flex; align-items:center; gap:14px;
+    padding:16px;
+    border-radius:16px;
+    border:2px solid var(--brass);
+    background:
+      radial-gradient(ellipse at 30% 20%, var(--felt-light), var(--felt) 75%);
+    box-shadow:0 10px 20px -8px rgba(0,0,0,0.6), inset 0 1px 6px rgba(255,255,255,0.06);
+    cursor:pointer;
+    text-decoration:none;
+    color:var(--cream);
+  }
+  .game-card:active{ transform:scale(0.98); }
+  .game-card .ic{
+    flex:0 0 auto;
+    width:52px; height:52px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:30px;
+    border-radius:12px;
+    background:rgba(0,0,0,0.25);
+    border:1px solid rgba(207,157,67,0.4);
+  }
+  .game-card .txt{ flex:1; min-width:0; }
+  .game-card .t{ font-weight:800; font-size:17px; }
+  .game-card .d{ font-size:12px; color:var(--cream-dim); margin-top:2px; }
+
+  .game-card.soon{
+    opacity:0.55; cursor:default;
+    border-style:dashed;
+    border-color:rgba(207,157,67,0.4);
+    background:rgba(255,255,255,0.02);
+  }
+
+  .install-bar{
+    position:fixed; left:50%; bottom:18px;
+    transform:translate(-50%, 120%);
+    transition:transform 0.35s cubic-bezier(.2,.8,.2,1);
+    background:linear-gradient(180deg,#3a2716,#1c1108);
+    border:2px solid var(--amber);
+    color:var(--cream);
+    font-family:'Nunito',sans-serif;
+    font-weight:800;
+    font-size:14px;
+    padding:12px 20px;
+    border-radius:30px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.5);
+    display:flex; align-items:center; gap:8px;
+    cursor:pointer;
+    z-index:20;
+    white-space:nowrap;
+  }
+  .install-bar.show{ transform:translate(-50%, 0); }
+
+  footer{
+    margin-top:auto;
+    padding-top:24px;
+    text-align:center;
+    font-size:11px;
+    color:var(--cream-dim);
+    opacity:0.6;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>JOGUINHOS</h1>
+    <p>Escolha um jogo pra começar</p>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>Funciona offline depois de instalado</footer>
+</div>
+
+<button class="install-bar" id="installBar">📲 Instalar app</button>
+
+<script>
+  var GAMES = [
+    { icon:'🃏', title:'Truco do Boteco', desc:'3D com sinais, dupla e trio', href:'games/truco/index.html' }
+    // Novo joguinho? Só adicionar um objeto aqui e criar a pasta em games/<nome>/
+  ];
+
+  var grid = document.getElementById('grid');
+  GAMES.forEach(function(g){
+    var a = document.createElement('a');
+    a.className = 'game-card';
+    a.href = g.href;
+    a.innerHTML =
+      '<div class="ic">'+g.icon+'</div>'+
+      '<div class="txt"><div class="t">'+g.title+'</div><div class="d">'+g.desc+'</div></div>';
+    grid.appendChild(a);
+  });
+  var soon = document.createElement('div');
+  soon.className = 'game-card soon';
+  soon.innerHTML = '<div class="ic">➕</div><div class="txt"><div class="t">Em breve</div><div class="d">Mais joguinhos chegando</div></div>';
+  grid.appendChild(soon);
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function(e){ console.error(e); });
+    });
+  }
+
+  var deferredPrompt = null;
+  var installBar = document.getElementById('installBar');
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+    installBar.classList.add('show');
+  });
+  installBar.addEventListener('click', function(){
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.finally(function(){
+      deferredPrompt = null;
+      installBar.classList.remove('show');
+    });
+  });
+  window.addEventListener('appinstalled', function(){
+    installBar.classList.remove('show');
+  });
+</script>
+</body>
+</html>
