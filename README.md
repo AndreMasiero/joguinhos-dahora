@@ -1,4 +1,4 @@
-# Joguinhos
+# Joguinhos da Hora
 
 App instalável (PWA) que roda offline, com vários joguinhos dentro. Hoje tem o
 **Truco do Boteco**; a ideia é ir empilhando outros na mesma casca.

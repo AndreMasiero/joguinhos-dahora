@@ -1,5 +1,5 @@
 /*
- * Service worker do hub "Joguinhos".
+ * Service worker do hub "Joguinhos da Hora".
  * Guarda o app inteiro (shell + cada joguinho) em cache pra funcionar 100% offline
  * depois da primeira visita. Ao adicionar um novo joguinho, é só somar as URLs dele
  * em PRECACHE_URLS (opcional — mesmo sem isso, a página fica cacheada sozinha na
@@ -7,7 +7,7 @@
  * atualização do cache em quem já instalou o app.
  */
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = 'joguinhos-' + CACHE_VERSION;
 
 const PRECACHE_URLS = [

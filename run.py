@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Servidor local pro app Joguinhos.
+"""Servidor local pro app Joguinhos da Hora.
 
 Service workers só funcionam em contexto seguro (https:// ou http://localhost),
 então abrir o index.html direto com duplo-clique (file://) não deixa instalar
@@ -31,7 +31,7 @@ def open_browser():
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     with socketserver.TCPServer(('localhost', PORT), Handler) as httpd:
-        print('Servindo Joguinhos em http://localhost:%d  (Ctrl+C pra parar)' % PORT)
+        print('Servindo Joguinhos da Hora em http://localhost:%d  (Ctrl+C pra parar)' % PORT)
         threading.Timer(0.6, open_browser).start()
         try:
             httpd.serve_forever()
