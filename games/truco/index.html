@@ -151,6 +151,7 @@
   /* ---------- Table / felt ---------- */
   .table-wrap{
     flex:1;
+    position:relative;
     display:flex; flex-direction:column;
     padding:6px 10px 10px;
     perspective:1200px;
@@ -308,18 +309,23 @@
     width:1px; height:1px;
   }
 
-  /* vira: faixa própria entre o título e a mesa */
+  /* vira: selo flutuante entre o título e a mesa — não ocupa espaço no
+     layout (position:absolute), então a mesa nunca muda de tamanho por
+     causa dele. */
   .vira-bar{
-    display:flex; align-items:center; justify-content:center; gap:7px;
-    padding:0 0 4px;
-    z-index:5;
+    position:absolute;
+    top:-34px; left:50%;
+    transform:translateX(-50%);
+    display:flex; align-items:center; gap:7px;
+    z-index:10;
+    pointer-events:none;
   }
   .vira-bar .cap{ font-size:9px; letter-spacing:1.5px; color:var(--cream-dim); opacity:0.75; text-transform:uppercase; }
   .vira-card-wrap{
-    width:42px; height:58px;
+    width:56px; height:78px;
     display:flex; align-items:center; justify-content:center;
   }
-  .vira-card-wrap .card{ transform: scale(0.62) rotate(8deg); transform-origin:center; }
+  .vira-card-wrap .card{ transform: scale(0.85) rotate(8deg); transform-origin:center; }
 
   .play-area{
     position:relative;
@@ -615,12 +621,11 @@
     <button class="icon-btn" id="newGameBtn" title="Nova partida">↺</button>
   </div>
 
-  <div class="vira-bar" id="viraBar">
-    <span class="cap">vira</span>
-    <div class="vira-card-wrap"><div class="card" id="viraCard"></div></div>
-  </div>
-
   <div class="table-wrap">
+    <div class="vira-bar" id="viraBar">
+      <span class="cap">vira</span>
+      <div class="vira-card-wrap"><div class="card" id="viraCard"></div></div>
+    </div>
     <div class="felt" id="felt">
 
       <div class="zone bot-zone" id="botZone"></div>

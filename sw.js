@@ -7,7 +7,7 @@
  * atualização do cache em quem já instalou o app.
  */
 
-const CACHE_VERSION = 'v7';
+const CACHE_VERSION = 'v8';
 const CACHE_NAME = 'joguinhos-' + CACHE_VERSION;
 
 const PRECACHE_URLS = [
