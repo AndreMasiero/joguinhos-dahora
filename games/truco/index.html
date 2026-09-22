@@ -3,6 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<script>
+  // 100dvh não é confiável em todo Android (algumas barras/overlays do sistema
+  // não são descontadas). window.innerHeight é o que o motor do navegador
+  // realmente considera "visível", então usamos isso como fonte da verdade.
+  (function(){
+    function setAppHeight(){
+      document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
+    }
+    setAppHeight();
+    window.addEventListener('resize', setAppHeight);
+    window.addEventListener('orientationchange', setAppHeight);
+  })();
+</script>
 <title>Truco do Boteco</title>
 <link rel="icon" href="../../icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="../../icons/icon.svg">
@@ -50,6 +63,7 @@
   body{
     min-height:100vh;
     min-height:100dvh;
+    min-height:var(--app-height, 100dvh);
     display:flex;
     justify-content:center;
     background:
@@ -62,6 +76,7 @@
     max-width:520px;
     min-height:100vh;
     min-height:100dvh;
+    min-height:var(--app-height, 100dvh);
     position:relative;
     display:flex;
     flex-direction:column;
@@ -427,7 +442,7 @@
 
   /* ---------- Controls ---------- */
   .controls{
-    padding:8px 14px calc(34px + env(safe-area-inset-bottom));
+    padding:8px 14px calc(56px + env(safe-area-inset-bottom));
     display:flex; flex-direction:column; align-items:center; gap:8px;
     min-height:64px;
     justify-content:center;
