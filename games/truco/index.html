@@ -308,14 +308,18 @@
     width:1px; height:1px;
   }
 
-  /* vira tucked corner */
-  .vira-slot{
-    position:absolute; top:8px; right:10px;
-    display:flex; flex-direction:column; align-items:center;
-    z-index:4;
+  /* vira: faixa própria entre o título e a mesa */
+  .vira-bar{
+    display:flex; align-items:center; justify-content:center; gap:7px;
+    padding:0 0 4px;
+    z-index:5;
   }
-  .vira-slot .cap{ font-size:8px; letter-spacing:1px; color:var(--cream-dim); opacity:0.75; margin-bottom:2px; }
-  .vira-slot .card{ transform: rotate(8deg); transform-origin:center; }
+  .vira-bar .cap{ font-size:9px; letter-spacing:1.5px; color:var(--cream-dim); opacity:0.75; text-transform:uppercase; }
+  .vira-card-wrap{
+    width:42px; height:58px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .vira-card-wrap .card{ transform: scale(0.62) rotate(8deg); transform-origin:center; }
 
   .play-area{
     position:relative;
@@ -611,6 +615,11 @@
     <button class="icon-btn" id="newGameBtn" title="Nova partida">↺</button>
   </div>
 
+  <div class="vira-bar" id="viraBar">
+    <span class="cap">vira</span>
+    <div class="vira-card-wrap"><div class="card" id="viraCard"></div></div>
+  </div>
+
   <div class="table-wrap">
     <div class="felt" id="felt">
 
@@ -620,10 +629,6 @@
       <div class="zone mid-zone" id="midZone">
         <div class="round-dots" id="roundDots"></div>
         <div class="play-area" id="playArea"></div>
-        <div class="vira-slot">
-          <span class="cap">vira</span>
-          <div class="card" id="viraCard"></div>
-        </div>
         <div class="stake-badge" id="stakeBadge">
           <div class="n" id="stakeVal">1</div>
           <div class="t">VALE</div>
