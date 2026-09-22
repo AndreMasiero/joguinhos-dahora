@@ -116,7 +116,7 @@
   }
 
   .install-bar{
-    position:fixed; left:50%; bottom:18px;
+    position:fixed; left:50%; bottom:calc(34px + env(safe-area-inset-bottom));
     transform:translate(-50%, 120%);
     transition:transform 0.35s cubic-bezier(.2,.8,.2,1);
     background:linear-gradient(180deg,#3a2716,#1c1108);
