@@ -1,10 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="g2" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#4a2d18"/>
-      <stop offset="1" stop-color="#1a100a"/>
-    </linearGradient>
+    <radialGradient id="bg" cx="50%" cy="42%" r="75%">
+      <stop offset="0%" stop-color="#1f6b4f"/>
+      <stop offset="55%" stop-color="#0f3d2e"/>
+      <stop offset="100%" stop-color="#071f16"/>
+    </radialGradient>
   </defs>
-  <rect width="512" height="512" fill="url(#g2)"/>
-  <text x="256" y="330" font-size="200" text-anchor="middle">🃏</text>
+  <rect width="512" height="512" fill="url(#bg)"/>
+
+  <!-- conteudo dentro da area segura (~80% central) -->
+  <g transform="translate(216,310) rotate(-16)">
+    <rect x="-52" y="-76" width="104" height="148" rx="15" fill="#e9dcc0" stroke="#241509" stroke-width="4"/>
+    <text x="0" y="18" font-size="60" text-anchor="middle" fill="#211a14">♣</text>
+  </g>
+  <g transform="translate(296,268) rotate(9)">
+    <rect x="-54" y="-78" width="108" height="152" rx="15" fill="#fdf8ec" stroke="#241509" stroke-width="4"/>
+    <text x="0" y="20" font-size="64" text-anchor="middle" fill="#a8352a">♥</text>
+  </g>
+  <ellipse cx="230" cy="160" rx="180" ry="80" fill="#ffffff" opacity="0.1"/>
 </svg>
